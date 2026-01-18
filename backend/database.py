@@ -7,6 +7,11 @@ Database connection and session management
 import os
 from sqlmodel import create_engine, SQLModel, Session
 from dotenv import load_dotenv
+from models import Conversation, Message
+
+def create_db_and_tables():
+    """Create database tables."""
+    SQLModel.metadata.create_all(engine)
 
 load_dotenv()
 
@@ -33,3 +38,4 @@ def get_session():
     """Get database session."""
     with Session(engine) as session:
         yield session
+

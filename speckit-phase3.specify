@@ -1,0 +1,151 @@
+**Content:**
+
+```markdown
+# Phase III Specification - AI Chatbot
+
+## Project Overview
+Add conversational AI interface to Phase II todo application using natural language.
+
+## User Stories
+
+### US-1: Chat Interface
+**As a** user  
+**I want to** interact with my todos via chat  
+**So that** I can manage tasks using natural language
+
+**Acceptance Criteria:**
+- Chat interface accessible from tasks page
+- Messages sent to backend AI endpoint
+- Responses appear in real-time
+- Conversation history persists
+
+### US-2: Natural Language Task Creation
+**As a** user  
+**I want to** say "Add task: buy groceries"  
+**So that** tasks are created from natural language
+
+**Acceptance Criteria:**
+- AI understands "add", "create", "remember" commands
+- Extracts task title from message
+- Optionally extracts description
+- Confirms task creation
+
+### US-3: Task Listing via Chat
+**As a** user  
+**I want to** ask "What's on my list?"  
+**So that** I can see tasks via conversation
+
+**Acceptance Criteria:**
+- AI lists all tasks when asked
+- Can filter by status (pending/completed)
+- Formats tasks in readable way
+
+### US-4: Mark Tasks Complete
+**As a** user  
+**I want to** say "Mark task 3 as done"  
+**So that** I can update tasks via chat
+
+**Acceptance Criteria:**
+- AI understands completion commands
+- Finds correct task by ID or description
+- Confirms completion
+
+### US-5: Delete Tasks via Chat
+**As a** user  
+**I want to** say "Delete the meeting task"  
+**So that** I can remove tasks via chat
+
+**Acceptance Criteria:**
+- AI understands delete commands
+- Finds correct task
+- Asks for confirmation if ambiguous
+
+## Functional Requirements
+
+### FR-1: Database Schema Extensions
+
+**conversations table:**
+- id: integer (primary key)
+- user_id: string (foreign key)
+- created_at: timestamp
+- updated_at: timestamp
+
+**messages table:**
+- id: integer (primary key)
+- conversation_id: integer (foreign key)
+- user_id: string (foreign key)
+- role: string ("user" or "assistant")
+- content: text
+- created_at: timestamp
+
+### FR-2: Chat API Endpoint
+
+**POST /api/{user_id}/chat**
+
+Request:
+```json
+{
+  "message": "Add task: buy groceries",
+  "conversation_id": 1  // optional
+}
+```
+
+Response:
+```json
+{
+  "conversation_id": 1,
+  "response": "I've added 'buy groceries' to your tasks.",
+  "tool_calls": ["add_task"]
+}
+```
+
+### FR-3: MCP Tools
+
+**Tool: add_task**
+- Parameters: user_id, title, description (optional)
+- Returns: task_id, status, title
+- Example: {"user_id": "user123", "title": "Buy milk"}
+
+**Tool: list_tasks**
+- Parameters: user_id, status (optional)
+- Returns: Array of task objects
+- Example: {"user_id": "user123", "status": "pending"}
+
+**Tool: complete_task**
+- Parameters: user_id, task_id
+- Returns: task_id, status, title
+- Example: {"user_id": "user123", "task_id": 5}
+
+**Tool: delete_task**
+- Parameters: user_id, task_id
+- Returns: task_id, status, title
+- Example: {"user_id": "user123", "task_id": 3}
+
+**Tool: update_task**
+- Parameters: user_id, task_id, title (optional), description (optional)
+- Returns: task_id, status, title
+- Example: {"user_id": "user123", "task_id": 2, "title": "New title"}
+
+### FR-4: AI Agent Behavior
+
+The agent should:
+- Understand task management commands
+- Extract relevant information from messages
+- Call appropriate MCP tools
+- Provide friendly, confirmatory responses
+- Handle errors gracefully
+- Ask for clarification when needed
+
+## Non-Functional Requirements
+
+### NFR-1: Response Time
+- Chat responses < 3 seconds
+- Tool execution < 500ms
+
+### NFR-2: Accuracy
+- Correctly interprets > 90% of common commands
+- Asks for clarification when uncertain
+
+### NFR-3: Conversation Continuity
+- Conversation history accessible after page reload
+- No loss of context across sessions

@@ -1,0 +1,29 @@
+**Add to existing constitution:**
+
+```markdown
+## Phase III: AI Chatbot Architecture
+
+### AI Integration Principles
+- Use OpenAI Agents SDK for conversational AI
+- MCP server exposes task operations as tools
+- Stateless server design - all state in database
+- Natural language understanding for task commands
+- Graceful error handling with user-friendly messages
+
+### Technology Stack
+- Frontend: OpenAI ChatKit
+- AI Framework: OpenAI Agents SDK
+- MCP: Official Python MCP SDK
+- Backend: FastAPI (extended from Phase II)
+
+### MCP Tools Design
+- Each tool is stateless
+- Tools call existing database operations
+- Tools return JSON responses
+- Error messages are clear and actionable
+
+### Conversation Management
+- Conversations stored in database
+- Messages persist across sessions
+- No server-side session state
+- Each request is independent

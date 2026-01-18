@@ -1,11 +1,11 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from sqlmodel import Field, SQLModel
 
 
 class Task(SQLModel, table=True):
     __tablename__ = "tasks"
-    
+
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True, nullable=False)
     title: str = Field(max_length=200, nullable=False)
@@ -33,3 +33,40 @@ class TaskResponse(SQLModel):
     completed: bool
     created_at: datetime
     updated_at: datetime
+
+
+class Conversation(SQLModel, table=True):
+    """Conversation model for chat sessions."""
+
+    __tablename__ = "conversations"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(index=True, nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+
+
+class Message(SQLModel, table=True):
+    """Message model for chat history."""
+
+    __tablename__ = "messages"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    conversation_id: int = Field(foreign_key="conversations.id", index=True)
+    user_id: str = Field(index=True, nullable=False)
+    role: str = Field(nullable=False)  # "user" or "assistant"
+    content: str = Field(nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now)
+
+
+class ChatRequest(SQLModel):
+    """Schema for chat request."""
+    message: str = Field(min_length=1)
+    conversation_id: Optional[int] = None
+
+
+class ChatResponse(SQLModel):
+    """Schema for chat response."""
+    conversation_id: int
+    response: str
+    tool_calls: List[str] = []

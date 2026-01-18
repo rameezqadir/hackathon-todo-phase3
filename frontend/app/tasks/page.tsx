@@ -34,8 +34,18 @@ export default function TasksPage() {
   ) => {
     try {
       setLoading(true)
-      const data = await taskAPI.getTasks(uid, status)
-      setTasks(data)
+      const allTasks = await taskAPI.getTasks(uid)
+
+      // Filter tasks based on status
+      let filteredTasks = allTasks
+      if (status === 'pending') {
+        filteredTasks = allTasks.filter(task => !task.completed)
+      } else if (status === 'completed') {
+        filteredTasks = allTasks.filter(task => task.completed)
+      }
+      // If status is 'all', keep all tasks as-is
+
+      setTasks(filteredTasks)
     } catch (error) {
       toast.error('Failed to load tasks')
     } finally {
@@ -55,7 +65,12 @@ export default function TasksPage() {
 
   const handleToggle = async (taskId: number) => {
     try {
-      const updated = await taskAPI.toggleComplete(userId, taskId)
+      const task = tasks.find(t => t.id === taskId)
+      if (!task) return
+
+      const updated = await taskAPI.updateTask(userId, taskId, {
+        completed: !task.completed
+      })
       setTasks(tasks.map(t => (t.id === taskId ? updated : t)))
     } catch {
       toast.error('Failed to update task')
@@ -126,13 +141,12 @@ export default function TasksPage() {
         ) : (
           <TaskList
             tasks={tasks}
-            onToggle={handleToggle}
+            onToggleComplete={handleToggle}
             onDelete={handleDelete}
-            onUpdate={handleUpdate}
+	    onUpdate={handleUpdate}
           />
         )}
       </main>
     </div>
   )
 }
-
