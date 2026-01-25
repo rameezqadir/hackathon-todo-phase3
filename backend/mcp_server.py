@@ -276,3 +276,73 @@ class MCPServer:
                 }
             }
         ]
+
+    def add_task_advanced(
+        self,
+        user_id: str,
+        title: str,
+        description: str = "",
+        priority: str = "medium",
+        tags: str = "",
+        due_date: str = None
+    ) -> Dict[str, Any]:
+        """Add task with advanced features"""
+        
+        with Session(engine) as session:
+            task = Task(
+                user_id=user_id,
+                title=title,
+                description=description,
+                priority=priority,
+                tags=tags,
+                due_date=datetime.fromisoformat(due_date) if due_date else None
+            )
+            session.add(task)
+            session.commit()
+            session.refresh(task)
+            
+            return {
+                "task_id": task.id,
+                "status": "created",
+                "title": task.title,
+                "priority": task.priority,
+                "due_date": str(task.due_date) if task.due_date else None
+            }
+    
+    def search_tasks(self, user_id: str, query: str) -> Dict[str, Any]:
+        """Search tasks by title/description"""
+        
+        with Session(engine) as session:
+            statement = select(Task).where(
+                Task.user_id == user_id,
+                or_(
+                    Task.title.contains(query),
+                    Task.description.contains(query),
+                    Task.tags.contains(query)
+                )
+            )
+            tasks = session.exec(statement).all()
+            
+            return {
+                "tasks": [
+                    {
+                        "id": t.id,
+                        "title": t.title,
+                        "priority": t.priority,
+                        "tags": t.tags
+                    }
+                    for t in tasks
+                ]
+            }
+    
+    def filter_by_priority(self, user_id: str, priority: str) -> Dict[str, Any]:
+        """Filter tasks by priority"""
+        
+        with Session(engine) as session:
+            statement = select(Task).where(
+                Task.user_id == user_id,
+                Task.priority == priority
+            )
+            tasks = session.exec(statement).all()
+            
+            return {"tasks": [{"id": t.id, "title": t.title} for t in tasks]}

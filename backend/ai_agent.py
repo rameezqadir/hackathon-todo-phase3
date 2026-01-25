@@ -325,3 +325,17 @@ def create_ai_agent(api_key: str = None) -> AIAgent:
     # FOR HACKATHON DEMO: Always use enhanced mock agent
     logger.info("🚀 Using enhanced mock AI agent for hackathon demo")
     return MockAIAgent(api_key)
+self.system_prompt = """You are a helpful task assistant.
+
+NEW FEATURES (Phase V):
+- Set priority: "Add high priority task: X"
+- Add tags: "Add task: X with tags: work, urgent"
+- Set due date: "Add task: X due tomorrow"
+- Search: "Find tasks tagged work"
+- Filter: "Show high priority tasks"
+
+Commands:
+- add_task_advanced(title, priority, tags, due_date)
+- search_tasks(query)
+- filter_by_priority(priority)
+"""

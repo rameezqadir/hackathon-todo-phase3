@@ -189,3 +189,33 @@ async def handle_tool_call(tool_call: dict, user_id: str, session: Session):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+from event_handler import event_bus
+
+# Add to task creation endpoint
+@app.post("/api/{user_id}/tasks")
+def create_task_with_events(user_id: str, task: TaskCreate):
+    # ... existing creation code ...
+    
+    # Publish event
+    event_bus.publish('task.created', {
+        'task_id': db_task.id,
+        'user_id': user_id,
+        'title': task.title
+    })
+    
+    return db_task
+
+# Add to task completion endpoint
+@app.patch("/api/{user_id}/tasks/{task_id}/complete")
+def complete_task_with_events(user_id: str, task_id: int):
+    # ... existing completion code ...
+    
+    # Publish event
+    event_bus.publish('task.completed', {
+        'task_id': task_id,
+        'user_id': user_id,
+        'is_recurring': task.is_recurring
+    })
+    
+    return task
