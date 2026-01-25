@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-config
+  namespace: todo-app
+data:
+  ENVIRONMENT: "production"
+  ALLOWED_ORIGINS: "*"
+  NEXT_PUBLIC_API_URL: "http://todo-backend-service:8000"

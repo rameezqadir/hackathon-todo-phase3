@@ -1,0 +1,54 @@
+# Default values for todo-chart
+
+replicaCount:
+  backend: 2
+  frontend: 2
+
+image:
+  backend:
+    repository: todo-backend
+    tag: v1.0
+    pullPolicy: Never
+  frontend:
+    repository: todo-frontend
+    tag: v1.0
+    pullPolicy: Never
+
+service:
+  backend:
+    type: ClusterIP
+    port: 8000
+  frontend:
+    type: NodePort
+    port: 3000
+    nodePort: 30080
+
+resources:
+  backend:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  frontend:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+ingress:
+  enabled: true
+  host: todo.local
+
+config:
+  environment: production
+  allowedOrigins: "*"
+  apiUrl: "http://todo-backend-service:8000"
+
+# Secrets (DO NOT commit these)
+secrets:
+  databaseUrl: ""
+  openaiApiKey: ""

@@ -22,3 +22,13 @@ dist/
 # Database
 *.db
 *.sqlite
+
+# Kubernetes
+*.kubeconfig
+kubeconfig
+
+# Minikube
+.minikube/
+
+# Helm
+*.tgz
