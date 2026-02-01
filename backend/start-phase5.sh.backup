@@ -1,0 +1,33 @@
+#!/bin/bash
+
+echo "🚀 Starting Phase V Environment"
+
+# Start Kafka
+echo "📦 Starting Kafka..."
+docker-compose -f docker-compose.kafka.yml up -d
+sleep 20
+
+# Start Minikube
+echo "☸️  Starting Minikube..."
+minikube start --driver=docker --cpus=4 --memory=8192
+minikube addons enable ingress
+
+# Install Dapr
+echo "🔷 Installing Dapr..."
+dapr init --kubernetes --wait
+
+# Deploy application
+echo "🚀 Deploying application..."
+kubectl create namespace todo-app
+kubectl apply -f k8s/
+
+# Start Kafka consumers
+echo "👂 Starting Kafka consumers..."
+cd backend
+source venv/bin/activate
+python recurring_task_consumer.py &
+python reminder_consumer.py &
+
+echo "✅ Phase V environment ready!"
+echo "📊 Kafka UI: http://localhost:8090"
+echo "🌐 App: $(minikube service todo-frontend-service -n todo-app --url)"

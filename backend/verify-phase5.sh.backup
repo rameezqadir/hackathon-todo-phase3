@@ -1,0 +1,56 @@
+#!/bin/bash
+
+echo "🔍 Phase V Verification"
+echo "======================="
+
+# Check Kafka
+echo "📦 Checking Kafka..."
+docker-compose -f docker-compose.kafka.yml ps | grep -q "Up"
+if [ $? -eq 0 ]; then
+    echo "✅ Kafka is running"
+else
+    echo "❌ Kafka is not running"
+fi
+
+# Check Minikube
+echo "☸️  Checking Minikube..."
+minikube status | grep -q "Running"
+if [ $? -eq 0 ]; then
+    echo "✅ Minikube is running"
+else
+    echo "❌ Minikube is not running"
+fi
+
+# Check Dapr
+echo "🔷 Checking Dapr..."
+kubectl get pods -n dapr-system | grep -q "Running"
+if [ $? -eq 0 ]; then
+    echo "✅ Dapr is installed"
+else
+    echo "❌ Dapr is not installed"
+fi
+
+# Check Application
+echo "🚀 Checking Application..."
+kubectl get pods -n todo-app | grep -q "Running"
+if [ $? -eq 0 ]; then
+    echo "✅ Application is deployed"
+else
+    echo "❌ Application is not deployed"
+fi
+
+# Check Kafka Topics
+echo "📊 Checking Kafka Topics..."
+docker exec kafka kafka-topics --list --bootstrap-server localhost:9092
+if [ $? -eq 0 ]; then
+    echo "✅ Kafka topics exist"
+else
+    echo "❌ Kafka topics missing"
+fi
+
+echo ""
+echo "🎯 Summary:"
+echo "- Kafka: http://localhost:8090"
+echo "- Minikube Dashboard: minikube dashboard"
+echo "- Application: kubectl get svc -n todo-app"
+

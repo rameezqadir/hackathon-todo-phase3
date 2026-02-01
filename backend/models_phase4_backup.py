@@ -1,9 +1,28 @@
 from datetime import datetime
 from typing import Optional, List
 from sqlmodel import Field, SQLModel
+from enum import Enum
 
+class Priority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+class RecurrenceType(str, Enum):
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
 
 class Task(SQLModel, table=True):
+priority: str = Field(default="medium")
+    tags: str = Field(default="")
+    due_date: Optional[datetime] = None
+    reminder_time: Optional[datetime] = None
+    is_recurring: bool = Field(default=False)
+    recurrence_type: Optional[str] = None
+    recurrence_interval: int = Field(default=1)
+    parent_task_id: Optional[int] = None
+
     __tablename__ = "tasks"
 
     id: Optional[int] = Field(default=None, primary_key=True)

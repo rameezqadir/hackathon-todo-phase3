@@ -14,7 +14,7 @@ class RecurrenceType(str, Enum):
     MONTHLY = "monthly"
 
 class Task(SQLModel, table=True):
-    priority: str = Field(default="medium")
+priority: str = Field(default="medium")
     tags: str = Field(default="")
     due_date: Optional[datetime] = None
     reminder_time: Optional[datetime] = None

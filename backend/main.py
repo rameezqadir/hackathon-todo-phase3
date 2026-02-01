@@ -219,3 +219,50 @@ def complete_task_with_events(user_id: str, task_id: int):
     })
     
     return task
+
+# Import Kafka producer
+from kafka_producer import kafka_producer
+
+# Update task creation to publish events
+@app.post("/api/{user_id}/tasks/advanced")
+def create_advanced_task(user_id: str, task_data: dict):
+    """Create task with advanced features"""
+    with Session(engine) as session:
+        task = Task(
+            user_id=user_id,
+            title=task_data.get('title'),
+            description=task_data.get('description', ''),
+            priority=task_data.get('priority', 'medium'),
+            tags=task_data.get('tags', ''),
+            due_date=task_data.get('due_date'),
+            is_recurring=task_data.get('is_recurring', False),
+            recurrence_type=task_data.get('recurrence_type'),
+            recurrence_interval=task_data.get('recurrence_interval', 1)
+        )
+        session.add(task)
+        session.commit()
+        session.refresh(task)
+        
+        # Publish event to Kafka
+        kafka_producer.publish_task_event(
+            'created',
+            task.id,
+            user_id,
+            {
+                'title': task.title,
+                'priority': task.priority,
+                'tags': task.tags,
+                'is_recurring': task.is_recurring
+            }
+        )
+        
+        # Publish reminder if due date set
+        if task.due_date:
+            kafka_producer.publish_reminder(
+                task.id,
+                user_id,
+                task.title,
+                task.due_date.isoformat()
+            )
+        
+        return task
